@@ -1,0 +1,103 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# ---------------- Matrix Chain Algorithm ----------------
+
+def matrix_chain_order(dims):
+    n = len(dims) - 1
+
+    m = [[0] * (n + 1) for _ in range(n + 1)]
+    s = [[0] * (n + 1) for _ in range(n + 1)]
+
+    for l in range(2, n + 1):
+        for i in range(1, n - l + 2):
+            j = i + l - 1
+            m[i][j] = float('inf')
+
+            for k in range(i, j):
+                cost = (
+                    m[i][k]
+                    + m[k + 1][j]
+                    + dims[i - 1] * dims[k] * dims[j]
+                )
+
+                if cost < m[i][j]:
+                    m[i][j] = cost
+                    s[i][j] = k
+
+    return m, s
+
+
+def print_optimal_parens(s, i, j):
+    if i == j:
+        return f"A{i}"
+
+    k = s[i][j]
+
+    left = print_optimal_parens(s, i, k)
+    right = print_optimal_parens(s, k + 1, j)
+
+    return f"({left} x {right})"
+
+
+# ---------------- GUI ----------------
+
+def calculate():
+    try:
+        dims = list(map(int, entry.get().split(",")))
+
+        if len(dims) < 2:
+            messagebox.showerror("Error", "Enter at least two dimensions.")
+            return
+
+        n = len(dims) - 1
+
+        m, s = matrix_chain_order(dims)
+
+        result.config(
+            text=f"Minimum Multiplications : {m[1][n]}\n\n"
+                 f"Optimal Order :\n"
+                 f"{print_optimal_parens(s,1,n)}"
+        )
+
+    except:
+        messagebox.showerror(
+            "Error",
+            "Enter dimensions separated by commas."
+        )
+
+
+root = tk.Tk()
+root.title("Matrix Chain Multiplication")
+root.geometry("500x350")
+
+title = tk.Label(
+    root,
+    text="Matrix Chain Multiplication",
+    font=("Arial", 16, "bold")
+)
+title.pack(pady=10)
+
+tk.Label(
+    root,
+    text="Enter Dimensions (Example: 10,30,5,60,10)"
+).pack()
+
+entry = tk.Entry(root, width=40)
+entry.pack(pady=10)
+
+tk.Button(
+    root,
+    text="Calculate",
+    command=calculate
+).pack(pady=10)
+
+result = tk.Label(
+    root,
+    text="",
+    font=("Arial", 12),
+    justify="left"
+)
+result.pack(pady=20)
+
+root.mainloop()
