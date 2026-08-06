@@ -1,0 +1,95 @@
+import tkinter as tk
+from tkinter import messagebox
+import time
+
+comparison_count = 0
+
+def min_max_dc(arr, low, high):
+    global comparison_count
+
+    if low == high:
+        return arr[low], arr[low]
+
+    if high == low + 1:
+        comparison_count += 1
+        if arr[low] < arr[high]:
+            return arr[low], arr[high]
+        return arr[high], arr[low]
+
+    mid = (low + high) // 2
+
+    lmin, lmax = min_max_dc(arr, low, mid)
+    rmin, rmax = min_max_dc(arr, mid + 1, high)
+
+    comparison_count += 1
+    overall_min = lmin if lmin < rmin else rmin
+
+    comparison_count += 1
+    overall_max = lmax if lmax > rmax else rmax
+
+    return overall_min, overall_max
+
+
+def find_min_max():
+    global comparison_count
+
+    try:
+        arr = list(map(int, entry.get().split(',')))
+
+        comparison_count = 0
+
+        start = time.perf_counter()
+
+        mn, mx = min_max_dc(arr, 0, len(arr)-1)
+
+        end = time.perf_counter()
+
+        min_label.config(text=f"Minimum : {mn}")
+        max_label.config(text=f"Maximum : {mx}")
+        comp_label.config(text=f"Comparisons : {comparison_count}")
+        time_label.config(text=f"Execution Time : {end-start:.8f} sec")
+
+    except:
+        messagebox.showerror("Error", "Enter valid numbers separated by commas.")
+
+
+root = tk.Tk()
+root.title("Min-Max Finder")
+root.geometry("500x350")
+root.configure(bg="#f2f2f2")
+
+title = tk.Label(root,
+                 text="Min-Max Finder (Divide & Conquer)",
+                 font=("Arial",16,"bold"),
+                 bg="#f2f2f2")
+
+title.pack(pady=10)
+
+entry = tk.Entry(root,
+                 width=50,
+                 font=("Arial",12))
+
+entry.pack(pady=10)
+
+button = tk.Button(root,
+                   text="Find Min & Max",
+                   font=("Arial",12,"bold"),
+                   command=find_min_max,
+                   bg="green",
+                   fg="white")
+
+button.pack(pady=10)
+
+min_label = tk.Label(root,text="Minimum :",font=("Arial",12),bg="#f2f2f2")
+min_label.pack()
+
+max_label = tk.Label(root,text="Maximum :",font=("Arial",12),bg="#f2f2f2")
+max_label.pack()
+
+comp_label = tk.Label(root,text="Comparisons :",font=("Arial",12),bg="#f2f2f2")
+comp_label.pack()
+
+time_label = tk.Label(root,text="Execution Time :",font=("Arial",12),bg="#f2f2f2")
+time_label.pack()
+
+root.mainloop()
